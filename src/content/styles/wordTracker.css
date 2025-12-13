@@ -1,0 +1,90 @@
+.word-tracker {
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.word-tracker-header {
+  margin-bottom: 16px;
+}
+
+.word-tracker-header h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.word-tracker-toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.word-tracker-content {
+  border-top: 1px solid var(--background-tertiary);
+  padding-top: 16px;
+}
+
+.tracked-words-header {
+  margin-bottom: 12px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.tracked-words-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.tracked-word-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  background: var(--background-tertiary);
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.tracked-word-item .word {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.tracked-word-item .syllable {
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+
+.tracked-words-overflow {
+  text-align: center;
+  padding: 8px;
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-style: italic;
+}
+
+/* Scrollbar styling for tracked words list */
+.tracked-words-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.tracked-words-list::-webkit-scrollbar-track {
+  background: var(--background-secondary);
+  border-radius: 2px;
+}
+
+.tracked-words-list::-webkit-scrollbar-thumb {
+  background: var(--background-tertiary);
+  border-radius: 2px;
+}
+
+.tracked-words-list::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+} 

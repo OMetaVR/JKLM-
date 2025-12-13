@@ -1,0 +1,328 @@
+.wordlist-panel {
+  background-color: var(--panel-background);
+  border-radius: 8px;
+  box-shadow: var(--shadow-medium);
+  width: 240px;
+  z-index: 8500;
+  overflow: hidden;
+  border: 1px solid var(--panel-border);
+  user-select: none;
+  pointer-events: auto;
+}
+
+/* Standalone panel styles to ensure it has theme variables */
+.wordlist-panel.standalone {
+  z-index: 10000; /* Higher than menu (9999) */
+  
+  /* Remove hardcoded theme variables that were causing the issues */
+  /* Only maintain shadow and transition variables that don't affect theme */
+  --shadow-small: 0 1px 3px rgba(0, 0, 0, 0.2);
+  --shadow-medium: 0 4px 6px rgba(0, 0, 0, 0.25);
+  --shadow-large: 0 10px 15px rgba(0, 0, 0, 0.3);
+  
+  --transition-speed-fast: 150ms;
+  --transition-speed-normal: 250ms;
+  --transition-speed-slow: 350ms;
+}
+
+/* Animation disabled state */
+[data-animations="disabled"] {
+  --transition-speed-fast: 0ms !important;
+  --transition-speed-normal: 0ms !important;
+  --transition-speed-slow: 0ms !important;
+}
+
+/* Disable hover animations when animations are disabled */
+[data-animations="disabled"] * {
+  transition-duration: 0ms !important;
+  animation-duration: 0ms !important;
+}
+
+/* Light theme styles */
+[data-theme="light"] .wordlist-panel {
+  background-color: var(--panel-background);
+  border-color: var(--panel-border);
+}
+
+[data-theme="light"] .wordlist-header {
+  background-color: var(--background-primary);
+  color: var(--text-primary);
+}
+
+[data-theme="light"] .wordlist-content {
+  background-color: var(--background-primary);
+}
+
+[data-theme="light"] .wordlist-item {
+  background-color: var(--background-secondary);
+  color: var(--text-primary);
+}
+
+[data-theme="light"] .wordlist-no-words {
+  color: var(--text-secondary);
+  background-color: var(--background-primary);
+}
+
+/* Dark theme styles */
+[data-theme="dark"] .wordlist-panel {
+  background-color: var(--panel-background);
+  border-color: var(--panel-border);
+}
+
+[data-theme="dark"] .wordlist-header {
+  background-color: var(--background-primary);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .wordlist-content {
+  background-color: var(--background-primary);
+}
+
+[data-theme="dark"] .wordlist-item {
+  background-color: var(--background-secondary);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .wordlist-no-words {
+  color: var(--text-secondary);
+  background-color: var(--background-primary);
+}
+
+.wordlist-panel.collapsed {
+  width: 240px;
+  height: auto;
+}
+
+.wordlist-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background-color: var(--background-primary);
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  color: var(--text-primary);
+}
+
+.wordlist-header:active {
+  cursor: grabbing;
+}
+
+.wordlist-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.wordlist-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary);
+}
+
+.wordlist-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.wordlist-minimize-btn,
+.wordlist-pin-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  color: var(--text-secondary) !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background-color var(--transition-speed-fast), color var(--transition-speed-fast);
+}
+
+.wordlist-minimize-btn:hover,
+.wordlist-pin-btn:hover {
+  background-color: var(--background-tertiary);
+}
+
+.wordlist-minimize-btn svg,
+.wordlist-pin-btn svg {
+  color: var(--text-secondary) !important;
+  stroke: var(--text-secondary) !important;
+}
+
+.wordlist-pin-btn.pinned {
+  background-color: var(--accent-primary-transparent);
+}
+
+.wordlist-pin-btn.pinned svg {
+  color: var(--accent-primary) !important;
+  stroke: var(--accent-primary) !important;
+  fill: none;
+}
+
+/* Pin icon */
+.wordlist-pin-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* For standard pin button, use slightly smaller icon */
+.wordlist-pin-btn:not(.pinned) svg {
+  /* Override with pin SVG */
+  width: 14px;
+  height: 14px;
+}
+
+.wordlist-content {
+  padding: 6px;
+  max-height: 300px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  background-color: var(--background-primary);
+}
+
+/* Custom scrollbar for the wordlist */
+.wordlist-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.wordlist-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.wordlist-content::-webkit-scrollbar-thumb {
+  background-color: var(--background-tertiary);
+  border-radius: 3px;
+}
+
+.wordlist-content::-webkit-scrollbar-thumb:hover {
+  background-color: var(--text-disabled);
+}
+
+.wordlist-section {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-bottom: 3px;
+}
+
+.wordlist-section:not(:last-child) {
+  border-bottom: 1px solid var(--divider-color);
+  padding-bottom: 3px;
+}
+
+.wordlist-item {
+  padding: 5px 8px;
+  border-radius: 4px;
+  font-size: 13px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: transform var(--transition-speed-fast), background-color var(--transition-speed-fast);
+  cursor: pointer;
+  background-color: var(--background-secondary);
+  color: var(--text-primary);
+  border-left: 3px solid var(--accent-primary);
+  position: relative;
+  overflow: hidden;
+  height: 24px;
+}
+
+.wordlist-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--accent-primary);
+  opacity: 0.1;
+  pointer-events: none;
+}
+
+.wordlist-item:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.1);
+}
+
+.wordlist-item:active {
+  transform: translateY(0);
+}
+
+/* Copy feedback animation */
+@keyframes copy-flash {
+  0% { background-color: var(--accent-primary); color: white; }
+  100% { background-color: var(--background-secondary); color: var(--text-primary); }
+}
+
+.word-copied {
+  animation: copy-flash var(--transition-speed-normal) ease;
+}
+
+.word-copied .wordlist-word {
+  animation: pulse var(--transition-speed-normal) ease;
+}
+
+/* Type feedback animation */
+@keyframes type-flash {
+  0% { background-color: #4CAF50; color: white; }
+  100% { background-color: var(--background-secondary); color: var(--text-primary); }
+}
+
+.word-typed {
+  animation: type-flash var(--transition-speed-normal) ease;
+}
+
+.word-typed .wordlist-word {
+  animation: pulse var(--transition-speed-normal) ease;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.wordlist-word {
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+}
+
+.wordlist-syllable {
+  font-size: 12px;
+  color: var(--accent-primary);
+  margin-left: 6px;
+  font-weight: 400;
+}
+
+.wordlist-no-words {
+  padding: 20px;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 14px;
+  background-color: var(--background-primary);
+} 
+
+
+.wordlist-item.silent-typer-selected {
+  border-left: 3px solid #4CAF50;
+  background: linear-gradient(90deg, rgba(76, 175, 80, 0.2) 0%, var(--background-secondary) 100%);
+}
+
+.wordlist-item.silent-typer-selected::before {
+  background-color: #4CAF50;
+  opacity: 0.15;
+}
+
+.wordlist-item.silent-typer-selected .wordlist-word {
+  color: #4CAF50;
+}

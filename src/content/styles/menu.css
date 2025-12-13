@@ -1,0 +1,45 @@
+/* Main menu container */
+.jklm-mini {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    pointer-events: none;
+}
+
+[data-animations="enabled"] .jklm-mini {
+    transition: opacity var(--transition-speed-normal), visibility var(--transition-speed-normal);
+}
+
+.jklm-mini.visible {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: all;
+}
+
+.jklm-menu-container {
+    position: absolute;
+    background: transparent;
+    border-radius: 8px;
+    overflow: visible;
+    height: auto;
+    max-width: calc(100vw - 40px);
+    pointer-events: none; /* Allow clicking through the container */
+}
+
+/* Ensures all text is unselectable */
+.jklm-menu-container * {
+    user-select: none;
+    -webkit-user-select: none;
+    pointer-events: auto; /* Re-enable pointer events for children */
+}
+
+ 

@@ -1,0 +1,505 @@
+/* Profiles Panel Styles */
+.profiles-panel {
+  width: 240px;
+  background-color: #1a191a;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-medium);
+  margin-left: 8px;
+  user-select: none;
+  position: relative;
+  transition: height 0.25s ease;
+  min-width: 240px; /* Ensure width doesn't change when collapsed */
+}
+
+/* Light mode variant */
+[data-theme="light"] .profiles-panel {
+  background-color: #f0f0f0;
+}
+
+/* Header styles */
+.profiles-header {
+  background-color: #1a191a; /* Same as panel background */
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+  height: 46px;
+  cursor: pointer;
+  touch-action: none;
+}
+
+[data-theme="light"] .profiles-header {
+  background-color: #f0f0f0; /* Same as panel background */
+}
+
+/* Title area */
+.profiles-title {
+  display: flex;
+  align-items: center;
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.profiles-icon {
+  width: 20px;
+  margin-right: 12px;
+  display: flex;
+  align-items: center;
+  color: var(--text-primary);
+}
+
+.profiles-icon svg {
+  stroke: currentColor;
+}
+
+/* Header actions */
+.profiles-actions {
+  display: flex;
+  align-items: center;
+}
+
+.profiles-minimize-btn {
+  color: #a3a3a3;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 4px;
+  transition: color var(--transition-speed-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profiles-minimize-btn svg {
+  stroke: #a3a3a3;
+}
+
+[data-theme="light"] .profiles-minimize-btn {
+  color: #666666;
+}
+
+[data-theme="light"] .profiles-minimize-btn svg {
+  stroke: #666666;
+}
+
+.profiles-minimize-btn:hover {
+  color: var(--text-primary);
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+[data-theme="light"] .profiles-minimize-btn:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.profiles-minimize-btn:hover svg {
+  stroke: var(--text-primary);
+}
+
+/* Action buttons row */
+.profiles-actions-row {
+  display: flex;
+  padding: 12px;
+  gap: 8px;
+  border-bottom: 1px solid var(--divider-color);
+}
+
+.profile-action-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color var(--transition-speed-fast);
+}
+
+.profile-action-btn svg {
+  stroke-width: 2;
+}
+
+.create-btn {
+  flex-shrink: 0;
+}
+
+.create-btn:hover {
+  opacity: 0.9;
+}
+
+.create-btn svg {
+  stroke: white;
+}
+
+/* Profile item */
+.profile-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  margin-bottom: 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color var(--transition-speed-fast), color var(--transition-speed-normal);
+  background-color: transparent;
+  color: #a3a3a3;
+  position: relative;
+}
+
+/* Profile item keybind */
+.profile-item::before {
+  content: '';
+  position: absolute;
+  right: 42px; /* Increased from 32px to add more space from the dash icon */
+  top: 50%;
+  transform: translateY(-50%) scaleX(0);
+  width: 24px; /* Make it square */
+  height: 24px; /* Match the width for square shape */
+  background-color: rgba(0, 0, 0, 0.4);
+  border-radius: 4px;
+  transition: transform var(--transition-speed-fast), opacity 0.2s ease;
+  transform-origin: right;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  overflow: hidden;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.profile-item:hover::before {
+  transform: translateY(-50%) scaleX(1);
+  opacity: 1;
+}
+
+/* When profile is active */
+.profile-item.active::before {
+  color: white;
+}
+
+/* Hide the keybind box when options menu is active */
+.profile-item.options-active::before {
+  opacity: 0 !important;
+}
+
+/* When keybind is assigned */
+.profile-item.has-keybind::before {
+  content: attr(data-keybind);
+  padding: 0 4px;
+  text-align: center;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  transform: translateY(-50%) scaleX(0); /* Start hidden like normal */
+  width: 24px; /* Force fixed width */
+  max-width: 24px;
+}
+
+/* Only show keybind on hover like the original state */
+.profile-item.has-keybind:hover::before {
+  transform: translateY(-50%) scaleX(1);
+  opacity: 1;
+}
+
+/* When in keybind editing mode */
+.profile-item.editing-keybind::before {
+  content: "...";
+  opacity: 1 !important;
+  transform: translateY(-50%) scaleX(1) !important;
+  background-color: var(--accent-primary);
+  color: white;
+  text-align: center;
+  font-weight: bold;
+}
+
+/* Ensure active profiles with keybinds show white text */
+.profile-item.active.has-keybind::before {
+  color: white;
+}
+
+/* Hide the keybind when options are active, unless editing */
+.profile-item.options-active:not(.editing-keybind)::before {
+  opacity: 0 !important;
+}
+
+.keybind-edit-icon {
+  position: absolute;
+  right: 42px; /* Match the updated spacing */
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 4; /* Increased z-index to ensure it's visible */
+  pointer-events: none;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.7; }
+  50% { opacity: 1; }
+  100% { opacity: 0.7; }
+}
+
+.keybind-edit-icon svg {
+  width: 14px; /* Slightly larger */
+  height: 14px; /* Slightly larger */
+  stroke: white;
+}
+
+[data-theme="light"] .profile-item::before {
+  background-color: rgba(0, 0, 0, 0.2);
+  color: rgba(0, 0, 0, 0.8);
+}
+
+[data-theme="light"] .profile-item {
+  color: #666666;
+}
+
+.profile-item:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="light"] .profile-item:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.profile-item.active {
+  background-color: var(--accent-primary);
+  color: white;
+}
+
+.profile-name {
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+  transition: max-width 0.3s ease;
+}
+
+.profile-item.options-active .profile-name {
+  max-width: 60px;
+}
+
+/* Profile options button */
+.profile-options-btn {
+  background: none;
+  border: none;
+  padding: 2px;
+  color: inherit;
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  z-index: 10;
+}
+
+.profile-options-btn svg {
+  stroke: currentColor;
+}
+
+/* Profile options icons container */
+.profile-options-icons {
+  position: absolute;
+  right: 30px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 4px;
+  overflow: hidden;
+  width: 0;
+  transition: width 0.3s ease;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.profile-options-btn:hover + .profile-options-icons,
+.profile-options-icons:hover {
+  width: 116px;
+  pointer-events: auto;
+}
+
+/* Individual option icons */
+.profile-option-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border-radius: 4px;
+  transition: background-color 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateX(10px);
+}
+
+.profile-options-btn:hover + .profile-options-icons .profile-option-icon,
+.profile-options-icons:hover .profile-option-icon {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Staggered animation for the icons */
+.profile-option-icon:nth-child(1) {
+  transition-delay: 0.05s;
+}
+
+.profile-option-icon:nth-child(2) {
+  transition-delay: 0.1s;
+}
+
+.profile-option-icon:nth-child(3) {
+  transition-delay: 0.15s;
+}
+
+.profile-option-icon:nth-child(4) {
+  transition-delay: 0.2s;
+}
+
+.profile-option-icon:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="light"] .profile-option-icon:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.profile-option-icon svg {
+  width: 14px;
+  height: 14px;
+  stroke: #a3a3a3;
+}
+
+[data-theme="light"] .profile-option-icon svg {
+  stroke: #666666;
+}
+
+.profile-option-icon:hover svg {
+  stroke: var(--text-primary);
+}
+
+.profile-option-icon.delete-icon svg {
+  stroke: #e74c3c;
+}
+
+.profile-option-icon.delete-icon:hover svg {
+  stroke: #c0392b;
+}
+
+.profile-option-icon.export-icon svg {
+  stroke: #3498db;
+}
+
+.profile-option-icon.export-icon:hover svg {
+  stroke: #2980b9;
+}
+
+/* Profile options menu - removing old styles */
+.profile-options-menu {
+  display: none; /* Hide the old menu */
+}
+
+.profile-option {
+  display: none; /* Hide the old options */
+}
+
+/* Profiles list */
+.profiles-list {
+  padding: 8px 12px;
+  overflow-y: auto;
+  max-height: 300px;
+}
+
+/* Active profile item styles */
+.profile-item.active .profile-options-btn svg {
+  stroke: white;
+}
+
+/* Profile name input */
+.profile-name-input {
+  flex: 1;
+  min-width: 0;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  padding: 6px 10px;
+  color: white;
+  font-size: 13px;
+  outline: none;
+  transition: border-color var(--transition-speed-fast);
+}
+
+.profile-name-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.profile-name-input:focus {
+  border-color: var(--accent-primary);
+}
+
+[data-theme="light"] .profile-name-input {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: var(--text-primary);
+}
+
+[data-theme="light"] .profile-name-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.profiles-import-row {
+  display: flex;
+  padding: 0 12px 12px 12px;
+  gap: 8px;
+}
+
+.import-btn {
+  flex-shrink: 0;
+}
+
+.import-btn:hover {
+  opacity: 0.9;
+}
+
+.import-btn svg {
+  stroke: white;
+}
+
+.import-confirm-btn {
+  flex-shrink: 0;
+}
+
+.import-confirm-btn:hover {
+  opacity: 0.9;
+}
+
+.import-confirm-btn svg {
+  stroke: white;
+}
+
+.profiles-panel.collapsed {
+  height: 46px;
+  min-height: 46px;
+  overflow: hidden;
+}
+
+.profiles-panel.collapsed .profiles-minimize-btn svg {
+  transform: rotate(180deg);
+} 

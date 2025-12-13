@@ -1,0 +1,41 @@
+{
+  "manifest_version": 2,
+  "name": "JKLM+",
+  "version": "1.0.0",
+  "description": "Enhancement suite for JKLM.fun - Firefox Edition",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "jklm-plus@extension",
+      "strict_min_version": "109.0"
+    }
+  },
+  "permissions": [
+    "storage",
+    "*://raw.githubusercontent.com/*",
+    "*://cdn.jsdelivr.net/*",
+    "*://discord.com/api/webhooks/*",
+    "*://discordapp.com/api/webhooks/*",
+    "*://falcon.jklm.fun/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.jklm.fun/*",
+        "*://jklm.fun/*"
+      ],
+      "js": ["dist/content.bundle.js"],
+      "all_frames": false,
+      "run_at": "document_end"
+    },
+    {
+      "matches": [
+        "*://*.jklm.fun/*",
+        "*://jklm.fun/*",
+        "*://falcon.jklm.fun/*"
+      ],
+      "js": ["dist/game-iframe-detector.js"],
+      "all_frames": true,
+      "run_at": "document_start"
+    }
+  ]
+}

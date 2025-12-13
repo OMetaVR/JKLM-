@@ -1,0 +1,99 @@
+.dropdown-container {
+  position: relative;
+  width: 100%;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.dropdown-label {
+  font-size: 13px;
+  margin-bottom: 6px;
+  color: var(--text-secondary);
+}
+
+.dropdown-selector {
+  width: 100%;
+  min-height: 36px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  cursor: pointer;
+  transition: border-color var(--transition-speed-fast), background-color var(--transition-speed-fast);
+  user-select: none;
+}
+
+.dropdown-selector.open {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.dropdown-selector:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="light"] .dropdown-selector {
+  background-color: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .dropdown-selector.open,
+[data-theme="light"] .dropdown-selector:hover {
+  background-color: rgba(0, 0, 0, 0.08);
+}
+
+.dropdown-selected {
+  color: var(--text-primary);
+  font-weight: 500;
+  text-align: center;
+  flex-grow: 1;
+}
+
+.dropdown-arrow {
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dropdown-options {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background-color: #1a191a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  margin-top: 4px;
+  z-index: 1000; /* High z-index to ensure it appears above other elements */
+  box-shadow: var(--shadow-medium);
+  overflow: hidden;
+}
+
+[data-theme="light"] .dropdown-options {
+  background-color: #f0f0f0;
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+.dropdown-option {
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: background-color var(--transition-speed-fast);
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.dropdown-option:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+}
+
+[data-theme="light"] .dropdown-option:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.dropdown-option.selected {
+  font-weight: 500;
+} 

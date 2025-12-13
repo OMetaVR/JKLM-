@@ -1,0 +1,114 @@
+:root {
+  /* Base theme colors */
+  --background-primary: #1a1a1a;
+  --background-secondary: #242424;
+  --background-tertiary: #2a2a2a;
+  
+  /* Text colors */
+  --text-primary: #ffffff;
+  --text-secondary: #b3b3b3;
+  --text-disabled: #666666;
+  
+  /* Accent colors - Purple theme by default */
+  --accent-primary: #9b59b6;
+  --accent-secondary: #8e44ad;
+  --accent-hover: #a66bbe;
+  
+  /* UI Elements */
+  --panel-background: rgba(20, 20, 20, 0.95);
+  --panel-border: rgba(40, 40, 40, 0.8);
+  --divider-color: rgba(255, 255, 255, 0.1);
+  
+  /* Shadows */
+  --shadow-soft: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-medium: 0 6px 12px rgba(0, 0, 0, 0.15);
+  
+  /* Animation durations */
+  --transition-speed-fast: 150ms;
+  --transition-speed-normal: 250ms;
+  --transition-speed-slow: 350ms;
+}
+
+/* Light theme */
+[data-theme="light"] {
+  /* Base theme colors */
+  --background-primary: #ffffff;
+  --background-secondary: #f5f5f5;
+  --background-tertiary: #eeeeee;
+  
+  /* Text colors */
+  --text-primary: #1a1a1a;
+  --text-secondary: #4a4a4a;
+  --text-disabled: #999999;
+  
+  /* UI Elements */
+  --panel-background: rgba(255, 255, 255, 0.95);
+  --panel-border: rgba(200, 200, 200, 0.8);
+  --divider-color: rgba(0, 0, 0, 0.1);
+  
+  /* Shadows remain the same */
+  --shadow-soft: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-medium: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Animation disabled state */
+[data-animations="disabled"] {
+  --transition-speed-fast: 0ms !important;
+  --transition-speed-normal: 0ms !important;
+  --transition-speed-slow: 0ms !important;
+}
+
+/* Disable hover animations when animations are disabled */
+[data-animations="disabled"] * {
+  transition-duration: 0ms !important;
+  animation-duration: 0ms !important;
+}
+
+/* Custom scrollbar styles */
+::-webkit-scrollbar {
+  width: 3px;
+  height: 3px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: rgba(43, 42, 43, 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--text-disabled);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--text-secondary);
+}
+
+/* Light theme scrollbar adjustments */
+[data-theme="light"] ::-webkit-scrollbar-track {
+  background-color: rgba(43, 42, 43, 0.3);
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background-color: rgba(70, 70, 70, 0.8);
+  border-radius: 0;
+}
+
+/* For Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #3d3c3d rgba(43, 42, 43, 0.5);
+}
+
+/* Hide titlebars when the option is enabled */
+.hide-titlebars {
+  height: 0 !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: all var(--transition-speed-normal) ease-in-out !important;
+}
+
+/* Removed hover effect that was showing titlebar on hover */ 
