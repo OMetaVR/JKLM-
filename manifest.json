@@ -3,6 +3,10 @@
   "name": "JKLM+",
   "version": "1.0.0",
   "description": "Enhancement suite for JKLM.fun - Firefox Edition",
+  "icons": {
+    "48": "icons/jklmplus.png",
+    "96": "icons/jklmplus.png"
+  },
   "browser_specific_settings": {
     "gecko": {
       "id": "jklm-plus@extension",
