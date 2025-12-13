@@ -18,10 +18,8 @@ I am not responsible for any actions taken towards you for using this tool in pu
 
 ## What is this?
 
-<p align="left">
-  <img src="icons/jklmplus.png" alt="JKLM+ Icon" width="64" style="float: left; margin-right: 15px; border-radius: 8px;">
-  JKLM+ adds a ton of "quality-of-life" features to JKLM.fun games like Bomb Party and Popsauce. Whether you want word suggestions, auto-typing, game stats tracking, or just wanna destroy your friends, we got you!
-</p>
+| <img src="icons/jklmplus.png" alt="JKLM+ Icon" width="64"> | JKLM+ adds a ton of "quality-of-life" features to JKLM.fun games like Bomb Party and Popsauce. Whether you want word suggestions, auto-typing, game stats tracking, or just wanna destroy your friends, we got you! |
+|:---:|:---|
 
 ## Features
 
