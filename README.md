@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="icons/jklmplusbanner.png" alt="JKLM+ Banner" width="600">
+  <img src="icons/jklmplusbanner.png" alt="JKLM+ Banner" width="1000">
 </p>
 
 <p align="center">
