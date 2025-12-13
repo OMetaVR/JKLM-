@@ -113,7 +113,7 @@ Found a bug? Want a feature? Open an issue or PR.
 
 ## License
 
-Do whatever you want with it under the [licesnse](/LICENSE.md), Just don't be a dick about it and no claiming it as your own or trying to somehow sell it.
+Do whatever you want with it under the [license](/LICENSE.md). Just don't be a dick about it and no claiming it as your own or trying to somehow sell it.
 
 ## Thanks
 
