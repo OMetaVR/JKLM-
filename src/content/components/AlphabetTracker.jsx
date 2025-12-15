@@ -116,6 +116,7 @@ const AlphabetTracker = () => {
   useEffect(() => {
     const handleWordEntered = (e) => {
       if (!isEnabled) return;
+      if (!e.detail?.isSelf) return;
       const word = e.detail?.word?.toUpperCase() || '';
       if (!word) return;
       
