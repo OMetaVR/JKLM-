@@ -32,10 +32,7 @@ jobs:
         run: npm run build
 
       - name: Package extension
-        run: |
-          mkdir -p release
-          cd release
-          zip -r ../jklmplus-firefox.zip ../manifest.json ../dist ../icons -x "*.map"
+        run: zip -r jklmplus-firefox.zip manifest.json dist icons -x "*.map"
 
       - name: Update latest tag
         run: |
