@@ -1,10 +1,12 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import JSZip from 'jszip';
 import { useTheme } from '../context/ThemeContext';
 import { useAnimation } from '../context/AnimationContext';
 import { useKeybind } from '../context/KeybindContext';
 import AccentColorPicker from './AccentColorPicker';
 import debugLogger from '../utils/debugLogger';
+import learnedWords from '../data/learnedWords';
 import '../styles/navPanel.css';
 import {
   SettingsIcon,
@@ -334,56 +336,145 @@ const NavPanel = ({ onSelectPanel, activePanels = [] }) => {
     window.location.reload();
   };
 
-  const exportPopsauceAnswers = () => {
+  const exportAllData = async () => {
     try {
-      const answers = localStorage.getItem('jklm-mini-popsauce-answers') || '{}';
-      const aliases = localStorage.getItem('jklm-mini-popsauce-aliases') || '{}';
-      const exportData = { answers: JSON.parse(answers), aliases: JSON.parse(aliases) };
-      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const popsauceAnswers = localStorage.getItem('jklm-mini-popsauce-answers') || '{}';
+      const popsauceAliases = localStorage.getItem('jklm-mini-popsauce-aliases') || '{}';
+      const learnedWordsData = learnedWords.exportAll();
+      
+      const files = {
+        'popsauce-answers.json': JSON.stringify({ answers: JSON.parse(popsauceAnswers), aliases: JSON.parse(popsauceAliases) }, null, 2),
+        'learned-words.json': JSON.stringify(learnedWordsData, null, 2)
+      };
+      
+      const zip = new JSZip();
+      
+      Object.entries(files).forEach(([name, content]) => {
+        zip.file(name, content);
+      });
+      
+      const blob = await zip.generateAsync({ type: 'blob' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `popsauce-answers-${new Date().toISOString().split('T')[0]}.json`;
+      a.download = `jklmplus-data-${new Date().toISOString().split('T')[0]}.zip`;
       a.click();
       URL.revokeObjectURL(url);
     } catch (e) {
-      debugLogger.error('storage', 'Error exporting popsauce answers:', e);
+      debugLogger.error('storage', 'Error exporting data:', e);
+      try {
+        const popsauceAnswers = localStorage.getItem('jklm-mini-popsauce-answers') || '{}';
+        const popsauceAliases = localStorage.getItem('jklm-mini-popsauce-aliases') || '{}';
+        const learnedWordsData = learnedWords.exportAll();
+        const exportData = {
+          popsauce: { answers: JSON.parse(popsauceAnswers), aliases: JSON.parse(popsauceAliases) },
+          learnedWords: learnedWordsData
+        };
+        const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `jklmplus-data-${new Date().toISOString().split('T')[0]}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+      } catch (fallbackErr) {
+        debugLogger.error('storage', 'Fallback export also failed:', fallbackErr);
+      }
     }
   };
 
-  const importPopsauceAnswers = () => {
+  const importAllData = () => {
     const input = document.createElement('input');
     input.type = 'file';
-    input.accept = '.json';
-    input.onchange = (e) => {
+    input.accept = '.json,.zip';
+    input.onchange = async (e) => {
       const file = e.target.files[0];
       if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (event) => {
+      
+      if (file.name.endsWith('.zip')) {
         try {
-          const data = JSON.parse(event.target.result);
-          if (data.answers) {
-            const existing = JSON.parse(localStorage.getItem('jklm-mini-popsauce-answers') || '{}');
-            const merged = { ...existing, ...data.answers };
-            localStorage.setItem('jklm-mini-popsauce-answers', JSON.stringify(merged));
-          }
-          if (data.aliases) {
-            const existing = JSON.parse(localStorage.getItem('jklm-mini-popsauce-aliases') || '{}');
-            Object.keys(data.aliases).forEach(hash => {
-              if (!existing[hash]) existing[hash] = [];
-              data.aliases[hash].forEach(alias => {
-                if (!existing[hash].includes(alias)) existing[hash].push(alias);
+          const zip = await JSZip.loadAsync(file);
+          
+          const popsauceFile = zip.file('popsauce-answers.json');
+          if (popsauceFile) {
+            const content = await popsauceFile.async('string');
+            const data = JSON.parse(content);
+            if (data.answers) {
+              const existing = JSON.parse(localStorage.getItem('jklm-mini-popsauce-answers') || '{}');
+              localStorage.setItem('jklm-mini-popsauce-answers', JSON.stringify({ ...existing, ...data.answers }));
+            }
+            if (data.aliases) {
+              const existing = JSON.parse(localStorage.getItem('jklm-mini-popsauce-aliases') || '{}');
+              Object.keys(data.aliases).forEach(hash => {
+                if (!existing[hash]) existing[hash] = [];
+                data.aliases[hash].forEach(alias => {
+                  if (!existing[hash].includes(alias)) existing[hash].push(alias);
+                });
               });
-            });
-            localStorage.setItem('jklm-mini-popsauce-aliases', JSON.stringify(existing));
+              localStorage.setItem('jklm-mini-popsauce-aliases', JSON.stringify(existing));
+            }
           }
+          
+          const learnedFile = zip.file('learned-words.json');
+          if (learnedFile) {
+            const content = await learnedFile.async('string');
+            const data = JSON.parse(content);
+            learnedWords.importData(data);
+          }
+          
           window.dispatchEvent(new CustomEvent('jklm-mini-settings-change'));
-          alert('Popsauce answers imported successfully!');
+          alert('Data imported successfully!');
         } catch (err) {
-          alert('Error importing file: Invalid format');
+          alert('Error importing zip: ' + err.message);
         }
-      };
-      reader.readAsText(file);
+      } else {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          try {
+            const data = JSON.parse(event.target.result);
+            
+            if (data.popsauce) {
+              if (data.popsauce.answers) {
+                const existing = JSON.parse(localStorage.getItem('jklm-mini-popsauce-answers') || '{}');
+                localStorage.setItem('jklm-mini-popsauce-answers', JSON.stringify({ ...existing, ...data.popsauce.answers }));
+              }
+              if (data.popsauce.aliases) {
+                const existing = JSON.parse(localStorage.getItem('jklm-mini-popsauce-aliases') || '{}');
+                Object.keys(data.popsauce.aliases).forEach(hash => {
+                  if (!existing[hash]) existing[hash] = [];
+                  data.popsauce.aliases[hash].forEach(alias => {
+                    if (!existing[hash].includes(alias)) existing[hash].push(alias);
+                  });
+                });
+                localStorage.setItem('jklm-mini-popsauce-aliases', JSON.stringify(existing));
+              }
+            } else if (data.answers) {
+              const existing = JSON.parse(localStorage.getItem('jklm-mini-popsauce-answers') || '{}');
+              localStorage.setItem('jklm-mini-popsauce-answers', JSON.stringify({ ...existing, ...data.answers }));
+              if (data.aliases) {
+                const existingAliases = JSON.parse(localStorage.getItem('jklm-mini-popsauce-aliases') || '{}');
+                Object.keys(data.aliases).forEach(hash => {
+                  if (!existingAliases[hash]) existingAliases[hash] = [];
+                  data.aliases[hash].forEach(alias => {
+                    if (!existingAliases[hash].includes(alias)) existingAliases[hash].push(alias);
+                  });
+                });
+                localStorage.setItem('jklm-mini-popsauce-aliases', JSON.stringify(existingAliases));
+              }
+            }
+            
+            if (data.learnedWords) {
+              learnedWords.importData(data.learnedWords);
+            }
+            
+            window.dispatchEvent(new CustomEvent('jklm-mini-settings-change'));
+            alert('Data imported successfully!');
+          } catch (err) {
+            alert('Error importing file: Invalid format');
+          }
+        };
+        reader.readAsText(file);
+      }
     };
     input.click();
   };
@@ -417,19 +508,19 @@ const NavPanel = ({ onSelectPanel, activePanels = [] }) => {
         </div>
       )
     },
-    { id: 'popsauce_divider', type: 'divider' },
+    { id: 'data_export_divider', type: 'divider' },
     { 
-      id: 'export_popsauce', 
-      name: 'Export Popsauce Answers', 
+      id: 'export_data', 
+      name: 'Export All Data', 
       type: 'button',
-      onClick: exportPopsauceAnswers,
+      onClick: exportAllData,
       className: 'success'
     },
     { 
-      id: 'import_popsauce', 
-      name: 'Import Popsauce Answers', 
+      id: 'import_data', 
+      name: 'Import Data', 
       type: 'button',
-      onClick: importPopsauceAnswers,
+      onClick: importAllData,
       className: ''
     },
     { id: 'data_divider', type: 'divider' },

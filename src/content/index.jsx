@@ -11,6 +11,7 @@ import WordListPlaceholder from './components/WordListPlaceholder';
 import TurnTimer from './components/TurnTimer';
 import FloatingSilentTyperBadge from './components/FloatingSilentTyperBadge';
 import FloatingAnswerBadge from './components/FloatingAnswerBadge';
+import WordLearner from './components/WordLearner';
 import './styles.css';
 import './styles/theme.css';
 
@@ -149,6 +150,13 @@ class JKLMPlus {
                 <FloatingAnswerBadge />
             </ThemeProvider>
         );
+        
+        const wordLearnerContainer = document.createElement('div');
+        wordLearnerContainer.id = 'jklm-mini-word-learner-root';
+        document.body.appendChild(wordLearnerContainer);
+        
+        const wordLearnerRoot = createRoot(wordLearnerContainer);
+        wordLearnerRoot.render(<WordLearner />);
     }
 
     handleGlobalKeypress(e) {

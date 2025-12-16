@@ -107,12 +107,13 @@ const BindListPanel = ({ isDark, accentColor, gameType = 'bombparty' }) => {
     featureVisibility: {}
   });
 
-  const [silentTyperSettings, setSilentTyperSettings] = useState({ wordLengthMin: 4, wordLengthMax: 12 });
+  const [silentTyperSettings, setSilentTyperSettings] = useState({ wordLengthMin: 4, wordLengthMax: 12, lengthPreference: 'none' });
   const [autoTyperSettings, setAutoTyperSettings] = useState({ 
     reactionTimeMin: 200, reactionTimeMax: 500, 
     wpmMin: 60, wpmMax: 90, 
     typoChance: 5,
-    wordLengthMin: 4, wordLengthMax: 12
+    wordLengthMin: 4, wordLengthMax: 12,
+    lengthPreference: 'none'
   });
   
   const storageKey = gameType === 'popsauce' ? 'jklm-mini-popsauce-features' : 'jklm-mini-bombparty-features';
@@ -136,7 +137,8 @@ const BindListPanel = ({ isDark, accentColor, gameType = 'bombparty' }) => {
           if (silentTyper?.settings) {
             setSilentTyperSettings({
               wordLengthMin: silentTyper.settings.wordLengthMin || 4,
-              wordLengthMax: silentTyper.settings.wordLengthMax || 12
+              wordLengthMax: silentTyper.settings.wordLengthMax || 12,
+              lengthPreference: silentTyper.settings.lengthPreference || 'none'
             });
           }
           const autoTyper = parsed.find(f => f.id === 'auto-typer');
@@ -148,7 +150,8 @@ const BindListPanel = ({ isDark, accentColor, gameType = 'bombparty' }) => {
               wpmMax: autoTyper.settings.wpmMax || 90,
               typoChance: autoTyper.settings.typoChance || 5,
               wordLengthMin: autoTyper.settings.wordLengthMin || 4,
-              wordLengthMax: autoTyper.settings.wordLengthMax || 12
+              wordLengthMax: autoTyper.settings.wordLengthMax || 12,
+              lengthPreference: autoTyper.settings.lengthPreference || 'none'
             });
           }
         }
@@ -220,12 +223,12 @@ const BindListPanel = ({ isDark, accentColor, gameType = 'bombparty' }) => {
     window.dispatchEvent(new CustomEvent('jklm-mini-settings-change', { detail: { action: 'toggle-pin' } }));
   };
 
-  const updateSilentTyperSettings = (min, max) => {
-    setSilentTyperSettings({ wordLengthMin: min, wordLengthMax: max });
+  const updateSilentTyperSettings = (newSettings) => {
+    setSilentTyperSettings(prev => ({ ...prev, ...newSettings }));
     try {
       const saved = localStorage.getItem(storageKey);
       const parsed = saved ? JSON.parse(saved) : [];
-      const updated = parsed.map(f => f.id === 'silent-typer' ? { ...f, settings: { ...f.settings, wordLengthMin: min, wordLengthMax: max } } : f);
+      const updated = parsed.map(f => f.id === 'silent-typer' ? { ...f, settings: { ...f.settings, ...newSettings } } : f);
       localStorage.setItem(storageKey, JSON.stringify(updated));
       window.dispatchEvent(new CustomEvent('jklm-mini-settings-change', { detail: { action: 'silent-typer-settings' } }));
     } catch (e) {}
@@ -302,15 +305,35 @@ const BindListPanel = ({ isDark, accentColor, gameType = 'bombparty' }) => {
                 <div className="bindlist-quick-setting">
                   <DualRangeSlider
                     min={3}
-                    max={18}
+                    max={30}
                     minValue={silentTyperSettings.wordLengthMin}
                     maxValue={silentTyperSettings.wordLengthMax}
-                    onChange={updateSilentTyperSettings}
+                    onChange={(min, max) => updateSilentTyperSettings({ wordLengthMin: min, wordLengthMax: max })}
                     label="Word Length"
                     unit=""
                     showToggle={false}
                     accentColor={accentColor}
                   />
+                  <div className="bindlist-dropdown-setting">
+                    <label>Length Pref</label>
+                    <select
+                      value={silentTyperSettings.lengthPreference}
+                      onChange={(e) => updateSilentTyperSettings({ lengthPreference: e.target.value })}
+                      style={{
+                        backgroundColor: 'var(--background-secondary)',
+                        color: 'var(--text-primary)',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: '4px',
+                        padding: '2px 6px',
+                        fontSize: '11px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      <option value="none">None</option>
+                      <option value="shortest">Shortest</option>
+                      <option value="longest">Longest</option>
+                    </select>
+                  </div>
                 </div>
               )}
               {bindListSettings.displayQuickSettings && f.id === 'auto-typer' && f.enabled && (
@@ -356,17 +379,39 @@ const BindListPanel = ({ isDark, accentColor, gameType = 'bombparty' }) => {
                     />
                   </div>
                   {gameType === 'bombparty' && (
-                    <DualRangeSlider
-                      min={3}
-                      max={18}
-                      minValue={autoTyperSettings.wordLengthMin}
-                      maxValue={autoTyperSettings.wordLengthMax}
-                      onChange={(min, max) => updateAutoTyperSettings({ wordLengthMin: min, wordLengthMax: max })}
-                      label="Word Length"
-                      unit=""
-                      showToggle={false}
-                      accentColor={accentColor}
-                    />
+                    <>
+                      <DualRangeSlider
+                        min={3}
+                        max={30}
+                        minValue={autoTyperSettings.wordLengthMin}
+                        maxValue={autoTyperSettings.wordLengthMax}
+                        onChange={(min, max) => updateAutoTyperSettings({ wordLengthMin: min, wordLengthMax: max })}
+                        label="Word Length"
+                        unit=""
+                        showToggle={false}
+                        accentColor={accentColor}
+                      />
+                      <div className="bindlist-dropdown-setting">
+                        <label>Length Pref</label>
+                        <select
+                          value={autoTyperSettings.lengthPreference}
+                          onChange={(e) => updateAutoTyperSettings({ lengthPreference: e.target.value })}
+                          style={{
+                            backgroundColor: 'var(--background-secondary)',
+                            color: 'var(--text-primary)',
+                            border: '1px solid var(--border-color)',
+                            borderRadius: '4px',
+                            padding: '2px 6px',
+                            fontSize: '11px',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          <option value="none">None</option>
+                          <option value="shortest">Shortest</option>
+                          <option value="longest">Longest</option>
+                        </select>
+                      </div>
+                    </>
                   )}
                 </div>
               )}

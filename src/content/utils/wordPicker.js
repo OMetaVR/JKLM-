@@ -145,6 +145,7 @@ class WordPicker {
       count = 10,
       excludeBlacklist = true,
       prioritizeAlphabet = true,
+      lengthPreference = 'none',
     } = options;
 
     if (!this.allWords.length || !syllable) return [];
@@ -189,6 +190,12 @@ class WordPicker {
 
     if (excludeBlacklist && this.blacklist.size > 0) {
       candidates = candidates.filter(w => !this.blacklist.has(w));
+    }
+
+    if (lengthPreference === 'shortest') {
+      candidates = [...candidates].sort((a, b) => a.length - b.length);
+    } else if (lengthPreference === 'longest') {
+      candidates = [...candidates].sort((a, b) => b.length - a.length);
     }
 
     return candidates.slice(0, count);

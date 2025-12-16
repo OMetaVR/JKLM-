@@ -17,12 +17,16 @@ const AutoTyper = () => {
   const [wpmMax, setWpmMax] = useState(90);
   const [typoChance, setTypoChance] = useState(5);
   const [typoFixDelay, setTypoFixDelay] = useState(300);
+  const [lengthPreference, setLengthPreference] = useState('none');
+  const [selectViaWordlist, setSelectViaWordlist] = useState(false);
 
   const currentWordRef = useRef(null);
   const lastSyllableRef = useRef('');
   const isTypingRef = useRef(false);
   const turnStartTimeRef = useRef(null);
   const typingTimeoutRef = useRef(null);
+  const wordlistSelectedWordRef = useRef(null);
+  const pendingWordlistSelectionRef = useRef(null);
 
   const persistSettings = (nextSettings) => {
     try {
@@ -49,6 +53,8 @@ const AutoTyper = () => {
           setWpmMax(feature.settings.wpmMax ?? 90);
           setTypoChance(feature.settings.typoChance ?? 5);
           setTypoFixDelay(feature.settings.typoFixDelay ?? 300);
+          setLengthPreference(feature.settings.lengthPreference ?? 'none');
+          setSelectViaWordlist(feature.settings.selectViaWordlist ?? false);
         }
         setIsEnabled(Boolean(feature?.enabled));
       }
@@ -61,31 +67,9 @@ const AutoTyper = () => {
         setIsEnabled(Boolean(event.detail.enabled));
       }
     };
-    const handleSettings = () => {
-      try {
-        const saved = localStorage.getItem('jklm-mini-bombparty-features');
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          const feature = parsed.find(f => f.id === 'auto-typer');
-          if (feature?.settings) {
-            setReactionTimeMin(feature.settings.reactionTimeMin ?? 200);
-            setReactionTimeMax(feature.settings.reactionTimeMax ?? 500);
-            setWordLengthMin(feature.settings.wordLengthMin ?? 4);
-            setWordLengthMax(feature.settings.wordLengthMax ?? 12);
-            setWpmMin(feature.settings.wpmMin ?? 60);
-            setWpmMax(feature.settings.wpmMax ?? 90);
-            setTypoChance(feature.settings.typoChance ?? 5);
-            setTypoFixDelay(feature.settings.typoFixDelay ?? 300);
-          }
-          setIsEnabled(Boolean(feature?.enabled));
-        }
-      } catch (e) {}
-    };
     window.addEventListener('jklm-mini-feature-toggle', handleToggle);
-    window.addEventListener('jklm-mini-settings-change', handleSettings);
     return () => {
       window.removeEventListener('jklm-mini-feature-toggle', handleToggle);
-      window.removeEventListener('jklm-mini-settings-change', handleSettings);
     };
   }, []);
 
@@ -117,6 +101,8 @@ const AutoTyper = () => {
       if (newTurnState && !isMyTurn) {
         turnStartTimeRef.current = Date.now();
         lastSyllableRef.current = syllable;
+        wordlistSelectedWordRef.current = null;
+        pendingWordlistSelectionRef.current = null;
       }
       if (!newTurnState) {
         if (typingTimeoutRef.current) {
@@ -125,6 +111,8 @@ const AutoTyper = () => {
         }
         isTypingRef.current = false;
         currentWordRef.current = null;
+        wordlistSelectedWordRef.current = null;
+        pendingWordlistSelectionRef.current = null;
       }
       setIsMyTurn(newTurnState);
     };
@@ -134,6 +122,42 @@ const AutoTyper = () => {
     };
   }, [isMyTurn, syllable]);
 
+  useEffect(() => {
+    if (!isEnabled || !selectViaWordlist) return;
+    
+    const handleWordlistClick = (e) => {
+      const word = e.detail?.word;
+      if (!word || !isMyTurn) return;
+      
+      if (isTypingRef.current) {
+        return;
+      }
+      
+      wordlistSelectedWordRef.current = word;
+      currentWordRef.current = word;
+      
+      document.dispatchEvent(new CustomEvent('jklm-mini-silent-typer-word', {
+        detail: { word }
+      }));
+      
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+      
+      const reactionTime = getRandomInRange(reactionTimeMin, reactionTimeMax);
+      typingTimeoutRef.current = setTimeout(() => {
+        if (isMyTurn && isEnabled && gameTypeDetector.isBombParty() && !isTypingRef.current) {
+          simulateTyping(word);
+        }
+      }, reactionTime);
+    };
+    
+    document.addEventListener('jklm-mini-wordlist-word-click', handleWordlistClick);
+    return () => {
+      document.removeEventListener('jklm-mini-wordlist-word-click', handleWordlistClick);
+    };
+  }, [isEnabled, selectViaWordlist, isMyTurn, reactionTimeMin, reactionTimeMax]);
+
   const pickTargetWord = () => {
     if (!syllable || !wordlistReady) return null;
     return globalWordPicker.pickBest({
@@ -141,7 +165,8 @@ const AutoTyper = () => {
       minLength: wordLengthMin,
       maxLength: wordLengthMax,
       excludeBlacklist: true,
-      prioritizeAlphabet: true
+      prioritizeAlphabet: true,
+      lengthPreference
     });
   };
 
@@ -156,8 +181,6 @@ const AutoTyper = () => {
     if (!window.jklmPlusAutoType || !isMyTurn || isTypingRef.current) return;
     
     isTypingRef.current = true;
-    const wpm = getRandomInRange(wpmMin, wpmMax);
-    const baseDelay = wpmToCharDelay(wpm);
     
     let currentInput = '';
     let i = 0;
@@ -176,7 +199,8 @@ const AutoTyper = () => {
         currentInput = currentInput.slice(0, -1);
         window.jklmPlusAutoType(currentInput);
         
-        await new Promise(r => setTimeout(r, baseDelay * 0.5));
+        const wpmForBackspace = getRandomInRange(wpmMin, wpmMax);
+        await new Promise(r => setTimeout(r, wpmToCharDelay(wpmForBackspace) * 0.5));
         if (!isMyTurn || !isTypingRef.current) break;
       }
       
@@ -185,8 +209,8 @@ const AutoTyper = () => {
       i++;
       
       if (i < word.length) {
-        const variance = baseDelay * 0.3;
-        const delay = baseDelay + (Math.random() * variance * 2 - variance);
+        const wpmForChar = getRandomInRange(wpmMin, wpmMax);
+        const delay = wpmToCharDelay(wpmForChar);
         await new Promise(r => setTimeout(r, delay));
       }
     }
@@ -204,6 +228,7 @@ const AutoTyper = () => {
   useEffect(() => {
     if (!isEnabled || !wordlistReady || !isMyTurn || !syllable || isTypingRef.current) return;
     if (!gameTypeDetector.isBombParty()) return;
+    if (selectViaWordlist) return;
     
     if (syllable !== lastSyllableRef.current || !currentWordRef.current) {
       lastSyllableRef.current = syllable;
@@ -220,7 +245,7 @@ const AutoTyper = () => {
         }, reactionTime);
       }
     }
-  }, [isEnabled, isMyTurn, syllable, wordlistReady, reactionTimeMin, reactionTimeMax, wordLengthMin, wordLengthMax, wpmMin, wpmMax]);
+  }, [isEnabled, isMyTurn, syllable, wordlistReady, reactionTimeMin, reactionTimeMax, wordLengthMin, wordLengthMax, wpmMin, wpmMax, selectViaWordlist]);
 
   useEffect(() => {
     if (!isEnabled) return;
@@ -256,6 +281,19 @@ const AutoTyper = () => {
   }, [isEnabled, isMyTurn, syllable, wordLengthMin, wordLengthMax, wordlistReady]);
 
   useEffect(() => {
+    if (!isEnabled) {
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+        typingTimeoutRef.current = null;
+      }
+      isTypingRef.current = false;
+      currentWordRef.current = null;
+      wordlistSelectedWordRef.current = null;
+      pendingWordlistSelectionRef.current = null;
+    }
+  }, [isEnabled]);
+
+  useEffect(() => {
     return () => {
       if (typingTimeoutRef.current) {
         clearTimeout(typingTimeoutRef.current);
@@ -283,7 +321,7 @@ const AutoTyper = () => {
 
         <DualRangeSlider
           min={3}
-          max={18}
+          max={30}
           minValue={wordLengthMin}
           maxValue={wordLengthMax}
           onChange={(min, max) => {
@@ -356,6 +394,46 @@ const AutoTyper = () => {
               }}
             />
             <span className="slider-value">{typoFixDelay}ms</span>
+          </div>
+        </div>
+
+        <div className="setting-separator"></div>
+
+        <div className="setting-item">
+          <label>Length Pref.</label>
+          <select
+            value={lengthPreference}
+            onChange={(e) => {
+              setLengthPreference(e.target.value);
+              persistSettings({ lengthPreference: e.target.value });
+            }}
+            style={{
+              backgroundColor: 'var(--background-secondary)',
+              color: 'var(--text-primary)',
+              border: '1px solid var(--border-color)',
+              borderRadius: '4px',
+              padding: '4px 8px',
+              fontSize: '12px',
+              cursor: 'pointer'
+            }}
+          >
+            <option value="none">None</option>
+            <option value="shortest">Prefer Shortest</option>
+            <option value="longest">Prefer Longest</option>
+          </select>
+        </div>
+
+        <div className="setting-item">
+          <label>Select via Wordlist</label>
+          <div 
+            className={`toggle-switch ${selectViaWordlist ? 'active' : ''}`}
+            onClick={() => {
+              const newVal = !selectViaWordlist;
+              setSelectViaWordlist(newVal);
+              persistSettings({ selectViaWordlist: newVal });
+            }}
+          >
+            <div className="toggle-switch-handle"></div>
           </div>
         </div>
       </div>

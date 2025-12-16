@@ -661,12 +661,13 @@ const WordListPanel = ({ syllable, forcedVisible = false, standalone = false, cu
     }
   }, [syllable]);
   
-  // Word clicked handler with different actions based on modifier keys
   const handleWordClick = (word, e) => {
-    // Get animation duration from context
     const animationDuration = getAnimationDuration(250);
     
-    // If shift key is pressed, type the word directly into the game input
+    document.dispatchEvent(new CustomEvent('jklm-mini-wordlist-word-click', {
+      detail: { word }
+    }));
+    
     if (e.shiftKey) {
       try {
         // Find the input field in the JKLM.fun game
