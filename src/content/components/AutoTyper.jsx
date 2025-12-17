@@ -73,6 +73,8 @@ const AutoTyper = () => {
     };
   }, []);
 
+
+
   useEffect(() => {
     globalWordPicker.loadWordlist().then(() => {
       setWordlistReady(true);

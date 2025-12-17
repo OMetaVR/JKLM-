@@ -8,6 +8,10 @@ let failedWordsCache = {};
 let currentDictionaryId = null;
 let isInitialized = false;
 
+const normalizeWord = (word) => {
+  return word.toLowerCase().trim().replace(/[^a-z0-9-]/g, '');
+};
+
 function loadFromStorage() {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
@@ -69,7 +73,7 @@ function addWord(word, dictionaryId = null) {
   const dict = dictionaryId || currentDictionaryId;
   if (!dict || !word) return false;
   
-  const normalizedWord = word.toLowerCase().trim();
+  const normalizedWord = normalizeWord(word);
   if (!normalizedWord || normalizedWord.length < 3) return false;
   
   if (!learnedWordsCache[dict]) {
@@ -92,7 +96,7 @@ function markFailed(word, dictionaryId = null) {
   const dict = dictionaryId || currentDictionaryId;
   if (!dict || !word) return;
   
-  const normalizedWord = word.toLowerCase().trim();
+  const normalizedWord = normalizeWord(word);
   
   if (!failedWordsCache[dict]) {
     failedWordsCache[dict] = {};

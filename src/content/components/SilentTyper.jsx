@@ -73,6 +73,8 @@ const SilentTyper = () => {
     };
   }, []);
 
+
+
   useEffect(() => {
     globalWordPicker.loadWordlist().then(() => {
       setWordlistReady(true);

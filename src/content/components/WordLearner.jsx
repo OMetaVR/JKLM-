@@ -3,6 +3,10 @@ import learnedWords from '../data/learnedWords';
 import { globalWordPicker } from '../utils/wordPicker';
 import gameTypeDetector from '../utils/gameTypeDetector';
 
+const normalizeWord = (word) => {
+  return word.toLowerCase().trim().replace(/[^a-z0-9-]/g, '');
+};
+
 const WordLearner = () => {
   const currentDictRef = useRef(null);
   const knownWordsRef = useRef(new Set());
@@ -19,7 +23,7 @@ const WordLearner = () => {
         learnedWords.setDictionary(dictionaryId);
         
         globalWordPicker.loadWordlist().then(words => {
-          knownWordsRef.current = new Set(words.map(w => w.toLowerCase()));
+          knownWordsRef.current = new Set(words.map(w => normalizeWord(w)));
         });
       }
     };
@@ -35,7 +39,7 @@ const WordLearner = () => {
       if (!gameTypeDetector.isBombParty()) return;
       if (!currentDictRef.current) return;
       
-      const word = e.detail?.word?.toLowerCase();
+      const word = normalizeWord(e.detail?.word || '');
       if (!word || word.length < 3) return;
       
       if (!knownWordsRef.current.has(word)) {
@@ -47,7 +51,7 @@ const WordLearner = () => {
       if (!gameTypeDetector.isBombParty()) return;
       if (!currentDictRef.current) return;
       
-      const word = e.detail?.word?.toLowerCase();
+      const word = normalizeWord(e.detail?.word || '');
       if (!word) return;
       
       learnedWords.markFailed(word);
